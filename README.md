@@ -1,4 +1,4 @@
-# rivlus_webview_app
+# Basic WebView App
 
 A basic Webview app with Flutter
 
