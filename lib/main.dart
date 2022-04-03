@@ -58,7 +58,7 @@ class HomePage extends StatelessWidget {
         if (connectivityResult == ConnectivityResult.mobile ||
             connectivityResult == ConnectivityResult.wifi) {
           Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => WebViewer()));
+              context, MaterialPageRoute(builder: (context) => WebViewer(url: urlGit,)));
         } else {
           Navigator.pushReplacement(context,
               MaterialPageRoute(builder: (context) => NoConnectionPage()));

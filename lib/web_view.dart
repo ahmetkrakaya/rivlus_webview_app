@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:rivlus_webview_app/main.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-var _url = '';
-
 class WebViewer extends StatefulWidget {
-  final String _url = '';
+  final String url;
+
+  WebViewer({Key? key,required this.url}) : super(key: key);
+
   @override
   WebViewerState createState() => WebViewerState();
 }
@@ -49,7 +50,7 @@ class WebViewerState extends State<WebViewer> {
           ),
         ),
         body: WebView(
-          initialUrl: _url.toString(),
+          initialUrl: widget.url,
         ),
       ),
     );
