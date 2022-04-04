@@ -4,16 +4,20 @@ import 'package:rivlus_webview_app/common_widgets/alert_dialog.dart';
 import 'package:rivlus_webview_app/main.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+final webViewKey = GlobalKey<WebViewContainerState>();
+
 class WebViewer extends StatefulWidget {
   final String url;
 
-  WebViewer({Key? key,required this.url}) : super(key: key);
+  const WebViewer({Key? key, required this.url}) : super(key: key);
 
   @override
   WebViewerState createState() => WebViewerState();
 }
 
 class WebViewerState extends State<WebViewer> {
+  WebViewController? _webViewController;
+
   @override
   void initState() {
     super.initState();
@@ -51,10 +55,11 @@ class WebViewerState extends State<WebViewer> {
           actions: <Widget>[
             IconButton(
               icon: const Icon(Icons.logout_rounded),
-              onPressed: () async{
+              onPressed: () async {
                 final result = await const CommonAlertDialog(
                   title: 'Çıkış Yap',
-                  content: 'Çıkmak istediğinize emin misiniz?',
+                  content:
+                      'Uygulamadan çıkış yapmak istediğinize emin misiniz?',
                   mainButtonText: 'Evet',
                   cancelButtonText: 'Vazgeç',
                 ).show(context);
@@ -63,13 +68,44 @@ class WebViewerState extends State<WebViewer> {
                   exit(0);
                 }
               },
-            )
+            ),
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: () {
+                webViewKey.currentState?.reloadWebView();
+              }
+            ),
+
           ],
         ),
-        body: WebView(
-          initialUrl: widget.url,
-        ),
+        body: WebViewContainer(key: webViewKey,),
       ),
     );
+  }
+}
+
+
+class WebViewContainer extends StatefulWidget {
+  WebViewContainer({Key? key}) : super(key: key);
+
+  @override
+  WebViewContainerState createState() => WebViewContainerState();
+}
+
+class WebViewContainerState extends State<WebViewContainer> {
+  WebViewController? _webViewController;
+
+  @override
+  Widget build(BuildContext context) {
+    return WebView(
+      onWebViewCreated: (controller) {
+        _webViewController = controller;
+      },
+      initialUrl: "https://www.kullananlar.com",
+    );
+  }
+
+  void reloadWebView() {
+    _webViewController?.reload();
   }
 }
