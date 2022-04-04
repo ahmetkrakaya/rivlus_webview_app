@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:rivlus_webview_app/common_widgets/alert_dialog.dart';
 import 'package:rivlus_webview_app/main.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -16,7 +17,6 @@ class WebViewerState extends State<WebViewer> {
   @override
   void initState() {
     super.initState();
-
     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
   }
 
@@ -48,6 +48,23 @@ class WebViewerState extends State<WebViewer> {
               fontStyle: FontStyle.italic,
             ),
           ),
+          actions: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.logout_rounded),
+              onPressed: () async{
+                final result = await const CommonAlertDialog(
+                  title: 'Çıkış Yap',
+                  content: 'Çıkmak istediğinize emin misiniz?',
+                  mainButtonText: 'Evet',
+                  cancelButtonText: 'Vazgeç',
+                ).show(context);
+
+                if (result == true) {
+                  exit(0);
+                }
+              },
+            )
+          ],
         ),
         body: WebView(
           initialUrl: widget.url,
