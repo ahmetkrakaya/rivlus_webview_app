@@ -9,7 +9,7 @@ class NoConnectionPage extends StatelessWidget {
     return WillPopScope(
       onWillPop: () {
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => HomePage()));
+            context, MaterialPageRoute(builder: (context) => MaterialApp()));
         return Future.value(true);
       },
       child: Scaffold(

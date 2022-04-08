@@ -13,8 +13,45 @@ class NewWebView extends StatefulWidget {
 }
 
 class _NewWebViewState extends State<NewWebView> {
+  final GlobalKey webViewKey = GlobalKey();
+  late PullToRefreshController pullToRefreshController;
+  InAppWebViewGroupOptions options = InAppWebViewGroupOptions(
+      crossPlatform: InAppWebViewOptions(
+        useShouldOverrideUrlLoading: true,
+        mediaPlaybackRequiresUserGesture: false,
+      ),
+      android: AndroidInAppWebViewOptions(
+        useHybridComposition: true,
+      ),
+      ios: IOSInAppWebViewOptions(
+        allowsInlineMediaPlayback: true,
+      ));
   InAppWebViewController? _webViewController;
   double progress = 0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    pullToRefreshController = PullToRefreshController(
+      options: PullToRefreshOptions(
+        color: Colors.blue,
+      ),
+      onRefresh: () async {
+        if (Platform.isAndroid) {
+          _webViewController?.reload();
+        } else if (Platform.isIOS) {
+          _webViewController?.loadUrl(
+              urlRequest: URLRequest(url: await _webViewController?.getUrl()));
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,32 +70,32 @@ class _NewWebViewState extends State<NewWebView> {
             return false;
           }
         },
-        child: Scaffold(
-          body: Column(
-            children: <Widget>[
-              Expanded(
-                child: InAppWebView(
-                  gestureRecognizers: Set()
-                    ..add(Factory<VerticalDragGestureRecognizer>(
-                        () => VerticalDragGestureRecognizer()
-                          ..onDown = (DragDownDetails dragDownDetails) {
-                            _webViewController!.getScrollY().then((value) {
-                              if (value == 0 &&
-                                  dragDownDetails.globalPosition.direction <
-                                      1) {
-
-                                _webViewController!.reload();
-                              }
-                            });
-                          })),
-                  initialUrlRequest:
-                      URLRequest(url: Uri.parse("https://rivlus.com")),
-                  onWebViewCreated: (InAppWebViewController controller) {
-                    _webViewController = controller;
-                  },
-                ),
+         child: Scaffold(
+          body: Stack(
+            children: [
+              InAppWebView(
+                initialUrlRequest:
+                URLRequest(url: Uri.parse("https://rivlus.com")),
+                pullToRefreshController: pullToRefreshController,
+                onWebViewCreated: (InAppWebViewController controller) {
+                  _webViewController = controller;
+                },
+                initialOptions: options,
+                androidOnPermissionRequest: (controller, origin, resources) async {
+                  return PermissionRequestResponse(
+                      resources: resources,
+                      action: PermissionRequestResponseAction.GRANT);
+                },
+                onProgressChanged: (controller, progress) {
+                  if (progress == 100) {
+                    pullToRefreshController.endRefreshing();
+                  }
+                  setState(() {
+                    this.progress = progress / 100;
+                  });
+                },
               ),
-            ],
+            ]
           ),
         ),
       ),
